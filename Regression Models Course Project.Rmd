@@ -1,0 +1,125 @@
+---
+output: 
+  html_document: 
+    keep_md: yes
+---
+# Regression Models Course Project
+
+## Executive Summary
+
+This report explored the following questions about cars: <br>
+1. Is an automatic or manual better for MPG? <br>
+2. Quantify the MPG difference between automatic and manual transmissions. 
+
+Exploratory data analysis, statistical interference and regression analysis were performed. <br>
+
+The results of a t-test indicate that manual cars are better in terms of miles per gallon (mpg) compared to automatic cars, with a mean difference of 7.245 (p < 0.05). <br>
+The subsequent regression model, which controlled for the effects of 1/4 mile time (qsec) and weight (wt), confirmed that manual transmission cars have an average of 2.9 more miles per gallon compared to cars with automatic transmission.
+
+
+## Data 
+The data used in this analysis is the mtcars dataset which is extracted from the 1974 Motor Trend US magazine. The dataset includes fuel consumption and 10 aspects of automobile design and performance for 32 automobiles (1973-74 models).<br>
+
+The data and the appropriate packages are loaded.
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+library(dplyr)
+library(car)
+```
+
+```{r}
+data(mtcars)
+head(mtcars)
+```
+The variable names are as follows: <br>
+mpg: Miles/(US) gallon, cyl: number of cylinders, disp: Displacement (cu.in.), hp: Gross horsepower, drat: Rear axle ratio, wt: Weight (1000 lbs), qsec: 1/4 mile time, vs: Engine (0 = V-shaped, 1 = straight), am: Transmission (0 = automatic, 1 = manual), gear: Number of forward gears, carb: Number of carburetors.
+
+# Exploratory Data Analysis
+
+In order to evaluate the impact of transmission type (manual or automatic) on miles per gallon (mpg), an exploratory data analysis was conducted. <br>
+
+First, the mean and standard deviation of mpg were calculated for both manual and automatic transmission. The calculation was done using the following code: <br>
+
+```{r}
+mtcars %>% select(mpg, am) %>% group_by(am) %>% summarise(mean(mpg), sd(mpg))
+```
+
+Next, a boxplot was created to visualize the distribution of mpg for both transmission types. The code for the boxplot is as follows: 
+``` {r}
+boxplot(mpg~am, data = mtcars, main = "The effect of transmission type on MPG", xlab = "Transmission Type", ylab="MPG")
+```
+
+The exploratory data analysis suggests that manual transmission has a higher mean mpg (24.4) compared to automatic transmission (17.1).
+
+# Statistical Interference
+
+To confirm whether manual transmission has a significantly higher mpg than automatic, a t-test was performed.
+
+```{r}
+t.test(mpg~am, data = mtcars, alternative = c("less"))
+```
+This t-test shows that manual cars have a significantly higher MPG than automatic, 7.245 (p < 0.05).
+
+# Regression Models
+
+A regression model was created to assess the relationship between miles per gallon (mpg) and transmission type (am) using the mtcars dataset. The model was fit using the lm function in R as follows:
+
+```{r}
+fit <- lm(mpg~am, mtcars)
+summary(fit)
+```
+
+The low R squared value of the model (0.400) suggests that there may be other confounding variables at play. To account for these variables, a step-wise regression was performed using the step function as shown below:
+
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+
+fit2 <- lm(mpg~., mtcars)
+model <- step(fit2, direction = c("backward"))
+```
+
+```{r}
+summary(model)
+```
+
+The stepwise regression included weight (wt) and 1/4 mile time (qsec) as new variables in the model, which increased the R squared to 0.845. The model suggests that, after controlling for weight and 1/4 mile time, manual transmission cars tend to have an average of 2.9 more miles per gallon compared to cars with automatic transmission.
+
+The fit of the model was further analyzed using residual plots obtained from the plot function as shown below: <br>
+
+```{r}
+par(mfrow = c(2,2))
+plot(model)
+```
+<br>These plots showed that the residuals were not correlated with the predicted values, indicating that the assumption of homoscedacity was met.<br>
+
+The residual plots showed that the Cadillac Fleetwood, Lincoln Continental, and Chryslyer Imperial car models could potentially be outliers. The influence.measures() function could be used to further quantify this. <br>
+
+
+The absence of correlation between the residuals and the predictor, as indicated by the low value obtained from the following code, suggests that the model has captured the relevant predictors:
+
+```{r}
+cor(model$residuals, mtcars$am)
+```
+A Shapiro-Wilk test was performed to check if the residuals followed a normal distribution:
+
+```{r}
+shapiro.test(model$residuals)
+```
+While the p-value is low, it is still above 0.05, so the model adheres to the assumption of residual normality. The low values of the mean of the residuals and the mean squared error (MSE) obtained from the following code further indicate that the model is a good fit for the data:
+
+```{r}
+mean(model$residuals)
+mean(model$residuals)^2
+```
+The vif function from the car library was used to check for collinearity among predictors, which showed low vif values, indicating that the predictors are not correlated with each other:
+
+
+```{r}
+library(car)
+vif(model)
+```
+
+Some limitations of our model include the fact that step wise regression was used, as this can introduce bias depending on the order of variables in the dataset. Different forms of regression could be used such as LASSO. 
+
+
+
