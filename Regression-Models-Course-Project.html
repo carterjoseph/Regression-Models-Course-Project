@@ -374,10 +374,12 @@ more miles per gallon compared to cars with automatic transmission.</p>
 extracted from the 1974 Motor Trend US magazine. The dataset includes
 fuel consumption and 10 aspects of automobile design and performance for
 32 automobiles (1973-74 models).<br></p>
-<p>The data and the appropriate packages are loaded.</p>
+<p>The data and the appropriate packages are loaded, as well as setting
+the seed.</p>
 <pre class="r"><code>library(dplyr)
 library(car)</code></pre>
-<pre class="r"><code>data(mtcars)
+<pre class="r"><code>set.seed(123)
+data(mtcars)
 head(mtcars)</code></pre>
 <pre><code>##                    mpg cyl disp  hp drat    wt  qsec vs am gear carb
 ## Mazda RX4         21.0   6  160 110 3.90 2.620 16.46  0  1    4    4

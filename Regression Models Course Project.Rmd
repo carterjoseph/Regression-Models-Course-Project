@@ -20,7 +20,7 @@ The subsequent regression model, which controlled for the effects of 1/4 mile ti
 ## Data 
 The data used in this analysis is the mtcars dataset which is extracted from the 1974 Motor Trend US magazine. The dataset includes fuel consumption and 10 aspects of automobile design and performance for 32 automobiles (1973-74 models).<br>
 
-The data and the appropriate packages are loaded.
+The data and the appropriate packages are loaded, as well as setting the seed.
 
 ```{r, results='hide', message=FALSE, warning=FALSE}
 library(dplyr)
@@ -28,6 +28,7 @@ library(car)
 ```
 
 ```{r}
+set.seed(123)
 data(mtcars)
 head(mtcars)
 ```
